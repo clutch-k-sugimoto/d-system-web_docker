@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: apache/Dockerfile/Dockerfile
+    volumes:
+      - ../d-system-web_source:/var/www/html
+      - ./apache/logs/:/var/www/html/app/tmp/logs
+    ports:
+      - 8080:80
+    environment:
+      TZ: "Asia/Tokyo"
+    depends_on:
+      - db
+
+  db:
+    build:
+      context: .
+      dockerfile: mariadb/Dockerfile/Dockerfile
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: d-system
+      MYSQL_ROOT_PASSWORD: d-system
+      TZ: "Asia/Tokyo"
+
+#   phpmyadmin:
+#     image: phpmyadmin/phpmyadmin
+#     environment:
+#       - PMA_ARBITRARY=1
+#       - PMA_HOST=mysql
+#       - PMA_USER=root
+#       - PMA_PASSWORD=password
+#     links:
+#       - db
+#     ports:
+#       - 8888:80
+#     volumes:
+#       - ./phpmyadmin/sessions:/sessions
+
+volumes:
+  db_data:
+    external: false
