@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: apache/Dockerfile/Dockerfile
     volumes:
-      - ../d-system-web_source:/var/www/html
+      - ../d-system-web:/var/www/html
       - ./apache/logs/:/var/www/html/app/tmp/logs
     ports:
       - 8080:80

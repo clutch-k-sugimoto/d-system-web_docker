@@ -9,10 +9,18 @@ RUN apt-get update -yqq \
   wget \
   fontconfig \
   wkhtmltopdf \
+  zlib1g-dev \
+  libpng-dev \
+  libzip-dev \
+  autoconf \
  && apt-get autoremove \
  && apt-get clean
 
-RUN docker-php-ext-install pdo_mysql mysqli
+RUN docker-php-ext-install pdo_mysql mysqli gd zip
+
+# gRPCのインストール
+RUN pecl install grpc
+RUN docker-php-ext-enable grpc
 
 # Composerインストール
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
@@ -31,14 +39,15 @@ COPY apache/conf/php.ini /usr/local/etc/php/php.ini
 COPY init.sh /usr/local/bin
 RUN chmod 777 /usr/local/bin/init.sh
 
-# Apache2のログ出力フォルダを予め作っておく
+# Apache2のログ出力フォルダを予め作っておく。
+# このあとのマウントで上書きされてしまうが、コンテナへ先に作っておかないとApacheに怒られる
 RUN mkdir -p /var/www/html/app/tmp/logs
 
 # Apache2設定反映 ＆ 再起動
 RUN a2enmod rewrite \
   && service apache2 restart
 
-# entrypointを上書きしないとフォルダ作成と権限設定ができないため（反映に数分必要）
+# entrypointを上書きしないとマウントした構成に対してフォルダ作成と権限設定ができないのでこうする（反映に数分必要）
 CMD docker-php-entrypoint init.sh && apache2-foreground
 
 EXPOSE 80
