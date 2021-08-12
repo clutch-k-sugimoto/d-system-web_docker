@@ -1,8 +1,16 @@
 # ローカル開発環境@docker for CakePHP2.x
 
 ## 概要
-d-systemのweb環境をdockerで作ってみた。  
-しかして、Laravelまでの命  
+リモートで構築されているd-system-webのローカル版です。 
+
+しかして、Laravelへのマイグレーション完了までの命  
+<br>
+
+## 構成
+php 7.3-apache（Debian 10.0 "Buster"）  
+mariadb 10.4  
+phpmyadmin (Optional)  
+CakePHP2（プロジェクトにインストール済み）  
 <br>
 
 ## 初めにやること
@@ -12,28 +20,17 @@ d-systemのweb環境をdockerで作ってみた。
     ```  
 <br>
 
-2. app配下にフォルダを作成する。  
-    permissionやらusergroupやらの変更はDockerfileで行うので作るだけでおｋ。  
+2. プロジェクトのベースへ移動。  
+    例）ホームディレクトリのworkに作った場合
     ```
-    mkdir -p app/tmp/cache/cache_data
-    mkdir -p app/tmp/cache/db_cache
-    mkdir -p app/tmp/cache/less
-    mkdir -p app/tmp/cache/modules
-    mkdir -p app/tmp/cache/models
-    mkdir -p app/tmp/cache/persistent
-    mkdir -p app/tmp/cache/views
+    cd ~/work/d-system-web
     ```
 <br>
 
-3. CakePdfをインストールする。  
-CakePHP2.xは1.0.3しかサポートされていないというGoogle先生の教えに従った結果
+4. Docker コンテナ構築 ＆ 起動  
+    VisualStudioCodeでのdocker操作を知ってるならそっちで。
     ```
-    git clone https://github.com/FriendsOfCake/CakePdf -b 1.0.3 app/Plugin/CakePdf
-    ```  
-<br>
-
-4. DebugKitをインストールする。  
-このバージョンが合っているかどうか要検証
+    doccker-compose up
     ```
-    git clone https://github.com/cakephp/debug_kit -b 2.2 app/Plugin/DebugKit
-    ```
+5. １〜２分待つ  
+    entrypointで初期設定のシェルを走らせているため、起動から少し待つ必要がある。

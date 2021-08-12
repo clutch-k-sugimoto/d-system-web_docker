@@ -14,27 +14,31 @@ RUN apt-get update -yqq \
 
 RUN docker-php-ext-install pdo_mysql mysqli
 
+# Composerインストール
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
 
+# 環境変数追加
 ENV PATH="${PATH}:/var/www/html/lib/Cake/Console"
 ENV PATH="${PATH}:/var/www/html/app/Vendor/bin"
 
-COPY ./apache/conf/virtualhost.conf /etc/apache2/sites-available/000-default.conf
-COPY ./apache/conf/php.ini /usr/local/etc/php/
+# virturlhostの設定を転送 （Apache2のため、本家とはちょっと違う）
+COPY apache/conf/virtualhost.conf /etc/apache2/sites-available/000-default.conf
 
+# PHPの設定ファイル転送
+COPY apache/conf/php.ini /usr/local/etc/php/php.ini
+
+# 初期設定シェルを転送 & パーミッション変更（雑）
+COPY init.sh /usr/local/bin
+RUN chmod 777 /usr/local/bin/init.sh
+
+# Apache2のログ出力フォルダを予め作っておく
 RUN mkdir -p /var/www/html/app/tmp/logs
 
-RUN git clone https://github.com/FriendsOfCake/CakePdf -b 1.0.3 app/Plugin/CakePdf
-RUN git clone https://github.com/cakephp/debug_kit -b 2.2 app/Plugin/DebugKit
-RUN git clone https://github.com/Hyra/less.git app/Plugin/Less
-RUN git clone https://github.com/leafo/lessphp.git app/Plugin/Less/Vendor/lessphp
-
-RUN chown -R www-data:www-data \
-  /var/www/html/app/tmp/ \
-  && chmod -R 777 \
-  /var/www/html/app/tmp/
-
+# Apache2設定反映 ＆ 再起動
 RUN a2enmod rewrite \
   && service apache2 restart
+
+# entrypointを上書きしないとフォルダ作成と権限設定ができないため（反映に数分必要）
+CMD docker-php-entrypoint init.sh && apache2-foreground
 
 EXPOSE 80
