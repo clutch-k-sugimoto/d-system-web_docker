@@ -1,13 +1,14 @@
-version: "3"
+version: "3.7"
 
 services:
   app:
+    container_name: d-system_web
     build:
       context: .
       dockerfile: apache/Dockerfile/Dockerfile
     volumes:
       - ../d-system-web:/var/www/html
-      - ./apache/logs/:/var/www/html/app/tmp/logs
+      - ./apache/logs:/var/www/html/app/tmp/logs
     ports:
       - 8080:80
     environment:
@@ -16,32 +17,25 @@ services:
       - db
 
   db:
+    container_name: d-system_mariadb
     build:
       context: .
       dockerfile: mariadb/Dockerfile/Dockerfile
     volumes:
-      - db_data:/var/lib/mysql
+      - ./mariadb/db_data:/var/lib/mysql
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: d-system
-      MYSQL_ROOT_PASSWORD: d-system
-      TZ: "Asia/Tokyo"
+      - MYSQL_ROOT_PASSWORD=d-system
+      - MYSQL_DATABASE=d-system
+      - "TZ=Asia/Tokyo"
 
-#   phpmyadmin:
-#     image: phpmyadmin/phpmyadmin
-#     environment:
-#       - PMA_ARBITRARY=1
-#       - PMA_HOST=mysql
-#       - PMA_USER=root
-#       - PMA_PASSWORD=password
-#     links:
-#       - db
-#     ports:
-#       - 8888:80
-#     volumes:
-#       - ./phpmyadmin/sessions:/sessions
-
-volumes:
-  db_data:
-    external: false
+  adminer:
+    container_name: adminer
+    hostname: adminer
+    image: adminer:latest
+    restart: always
+    ports:
+      - 8888:8080
+    depends_on:
+      - db

@@ -1,56 +1,44 @@
 #!/bin/sh
 
-if [ ! -e {/var/www/html/app/tmp/cache/cache_data} ]; then
-    mkdir -p /var/www/html/app/tmp/cache/cache_data
+set -eu
+
+# 開始メッセージ
+echo '*************** init.sh start ***************'
+
+# ２度実行できないためのもの
+if [ -e '/usr/local/bin/init.lock' ]; then
+echo '*************** init.sh already executed !! ***************'
+  exit
 fi
 
-if [ ! -e {/var/www/html/app/tmp/cache/db_cache} ]; then
-    mkdir -p /var/www/html/app/tmp/cache/db_cache
-fi
+# tmp以下フォルダ作成
+mkdir -p /var/www/html/app/tmp/cache/cache_data
+mkdir -p /var/www/html/app/tmp/cache/db_cache
+mkdir -p /var/www/html/app/tmp/cache/less
+mkdir -p /var/www/html/app/tmp/cache/modules
+mkdir -p /var/www/html/app/tmp/cache/models
+mkdir -p /var/www/html/app/tmp/cache/persistent
+mkdir -p /var/www/html/app/tmp/cache/views
 
-if [ ! -e {/var/www/html/app/tmp/cache/less} ]; then
-    mkdir -p /var/www/html/app/tmp/cache/less
-fi
-
-if [ ! -e {/var/www/html/app/tmp/cache/modules} ]; then
-    mkdir -p /var/www/html/app/tmp/cache/modules
-fi
-
-if [ ! -e {/var/www/html/app/tmp/cache/models} ]; then
-    mkdir -p /var/www/html/app/tmp/cache/models
-fi
-
-if [ ! -e {/var/www/html/app/tmp/cache/persistent} ]; then
-    mkdir -p /var/www/html/app/tmp/cache/persistent
-fi
-
-if [ ! -e {/var/www/html/app/tmp/cache/views} ]; then
-    mkdir -p /var/www/html/app/tmp/cache/views
-fi
-
+# オーナー変更とパーミッション変更
 chown -R www-data:www-data /var/www/html/app/tmp/
 chmod -R 777 /var/www/html/app/tmp/
 
-if [ -z "$(ls /var/www/html/app/Plugin/CakePdf)" ]; then
-    git clone https://github.com/FriendsOfCake/CakePdf -b 1.0.3 /var/www/html/app/Plugin/CakePdf
-fi
+# プラグイン一式インストール
+git clone https://github.com/FriendsOfCake/CakePdf -b 1.0.3 /var/www/html/app/Plugin/CakePdf
+git clone https://github.com/cakephp/debug_kit -b 2.2 /var/www/html/app/Plugin/DebugKit
+git clone https://github.com/Hyra/less.git /var/www/html/app/Plugin/Less
+git clone https://github.com/leafo/lessphp.git /var/www/html/app/Plugin/Less/Vendor/lessphp
 
-if [ -z "$(ls /var/www/html/app/Plugin/DebugKit)" ]; then
-    git clone https://github.com/cakephp/debug_kit -b 2.2 /var/www/html/app/Plugin/DebugKit
-fi
-
-if [ -z "$(ls /var/www/html/app/Plugin/Less)" ]; then
-    git clone https://github.com/Hyra/less.git /var/www/html/app/Plugin/Less
-fi
-
-if [ -z "$(ls /var/www/html/app/Plugin/Less/Vendor/lessphp)" ]; then
-    git clone https://github.com/leafo/lessphp.git /var/www/html/app/Plugin/Less/Vendor/lessphp
-fi
-
+# composerはlockファイルがプロジェクトに存在するので、installではなくupdateとする
 cd /var/www/html
-composer install
+composer update
 
 cd /var/www/html/app
-composer install
+composer update
 
-exec "$@"
+# ２度実行禁止フラグ的な空ファイル
+touch /usr/local/bin/init.lock
+
+# 終了メッセージ
+echo '*************** init.sh end ***************'
