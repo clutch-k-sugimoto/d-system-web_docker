@@ -3,6 +3,7 @@ FROM php:7.3-apache
 # apt-getでいるやつ諸々インストール
 RUN apt-get update -yqq \
   && apt-get install -yqq --no-install-recommends \
+  sudo \
   git \
   zip \
   unzip \
