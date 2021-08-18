@@ -22,8 +22,12 @@ RUN apt-get update -yqq \
 RUN docker-php-ext-install pdo_mysql mysqli gd zip
 
 # gRPCのインストール と 有効化（こいつが死ぬほど長い）
-RUN pecl install grpc
-RUN docker-php-ext-enable grpc
+RUN pecl install grpc \
+  && docker-php-ext-enable grpc
+
+# リモートデバッグツール（xdebug）インストール と 有効化
+RUN pecl install xdebug \
+  && docker-php-ext-enable xdebug
 
 # Composerインストール
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
