@@ -96,6 +96,52 @@ CakePHP2（プロジェクトにインストール済み）
 <br>
 <br>
 
+## やっておいたら便利なやつ  
+
+
+### xdebugを使う  
+
+
+好きな箇所にブレークポイントを置いてステップ実行ができるようになります。  
+サーバには追加済み  
+
+
+以下の手順を、d-system_webを開いているVSCodeプロジェクトに追加してください。  
+
+
+1. VSCodeの拡張機能タブ（Ctrl + Shift + X）から、`PHP Debug`を検索してインストール。
+
+
+2. VSCodeのデバッグタブ（Ctrl + Shift + D）から、`「launch.jsonファイルを作成します」`をクリック。
+
+
+3. 環境の選択タブが表示されるので、`PHP`を選択。
+
+
+4. 作成されたファイルの中身全部を以下に書き換え。  
+    ```
+    {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "d-system_web",
+                "type": "php",
+                "request": "launch",
+                "port": 9003,
+                "stopOnEntry": true,
+                "pathMappings": {
+                    "/var/www/html": "${workspaceFolder}"
+                },
+                "ignore": [
+                    "**/vendor/**/*.php"
+                ]
+            }
+        ]
+    }    
+    ```
+<br>
+<br>
+
 ## その他 リモート環境と違うことによる気になる点など
 * ローカルはhttpsではなくhttpだがなんか問題あるか
 * Pluginを自力で引っ張ってきていることによるバージョンの差異で不具合が出るか
