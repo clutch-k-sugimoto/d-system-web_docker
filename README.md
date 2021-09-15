@@ -150,7 +150,7 @@ docker-compose stop
                 "type": "php",
                 "request": "launch",
                 "port": 9003,
-                "stopOnEntry": true,
+                "stopOnEntry": false,
                 "pathMappings": {
                     "/var/www/html": "${workspaceFolder}"
                 },
